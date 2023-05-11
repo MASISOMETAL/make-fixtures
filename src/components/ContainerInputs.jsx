@@ -1,6 +1,8 @@
 import React, { useState } from 'react'
 import styled from 'styled-components'
 import { COLORS } from '../constants/Colors';
+import { CreateFixture } from '../helpers/CreateFixture';
+import Fechas from './Fechas';
 
 // ESTILOS
 
@@ -68,8 +70,7 @@ const Box = styled.div`
     flex-direction: column;
     gap: 0.5rem;
     /* background-color: #ff0000; */
-    flex: 1 0 auto;
-
+    //flex: 1 0 auto;
     margin: 2%;
 `;
 
@@ -99,6 +100,8 @@ const MsgError = styled.span`
     background-color: inherit;
     color: #ff0000;
     font-size: 13px;
+    text-align: center;
+    padding: 0 10%;
 `;
 
 // FIN ESTILOS
@@ -113,6 +116,7 @@ const ContainerInputs = () => {
     const [equipos, setEquipos] = useState([]);
     const [text, setText] = useState("");
     const [error, setError] = useState(initialState)
+    const [dataFixture, setDataFixture] = useState()
 
     const onHandleAddEquip = () => {
         for (const item of equipos) {
@@ -125,10 +129,10 @@ const ContainerInputs = () => {
             }
         }
 
-        if (text.trim().length < 6) {
+        if (text.trim().length < 4) {
             setError({
                 status: true,
-                errorMsg: "El nombre debe contener al menos 6 caracteres."
+                errorMsg: "El nombre debe contener al menos 4 caracteres."
             })
         } else {
             setEquipos([
@@ -149,43 +153,57 @@ const ContainerInputs = () => {
         setText(e.target.value)
     }
 
+    const onHandleStart = () => {
+        const { fixture } = CreateFixture(equipos)
+        setDataFixture(fixture)
+    }
 
     return (
         <Container>
-            <ContainerCard1>
-                <ContainerTitle>
-                    <H2Title>Agrege un equipo</H2Title>
-                </ContainerTitle>
-                <ContainerInput2>
-                    <Box>
-                        <Label>Nombre de equipo: </Label>
-                        <Input
-                            type="text"
-                            placeholder='Team Turtle'
-                            onChange={onHandleChangeText}
-                            value={text}
-                        />
-                        {error.status && <MsgError>{error.errorMsg}</MsgError>}
-                        <Button onClick={onHandleAddEquip}>+</Button>
+            {!dataFixture ?
+                <>
+                    <ContainerCard1>
+                        <ContainerTitle>
+                            <H2Title>Agrege un equipo</H2Title>
+                        </ContainerTitle>
+                        <ContainerInput2>
+                            <Box>
+                                <Label>Nombre de equipo: </Label>
+                                <Input
+                                    type="text"
+                                    placeholder='Team Turtle'
+                                    onChange={onHandleChangeText}
+                                    value={text}
+                                />
+                                {error.status && <MsgError>{error.errorMsg}</MsgError>}
+                                <Button onClick={onHandleAddEquip}>+</Button>
 
-                    </Box>
-                </ContainerInput2>
-            </ContainerCard1>
-            <ContainerCard2>
-                <ContainerTitle>
-                    <H2Title>Equipos agregados</H2Title>
-                </ContainerTitle>
-                <ContainerInput>
-                    {equipos && (
-                        equipos.map((item, index) =>
-                            <Box1 key={index}>
-                                <Label>{item}</Label>
-                                <Button onClick={() => onHandleDelEquip(item)}>Quitar equipo</Button>
-                            </Box1>
-                        )
-                    )}
-                </ContainerInput>
-            </ContainerCard2>
+                            </Box>
+                        </ContainerInput2>
+                    </ContainerCard1>
+                    <ContainerCard2>
+                        <ContainerTitle>
+                            <H2Title>Equipos agregados</H2Title>
+                        </ContainerTitle>
+                        <ContainerInput>
+                            {equipos && (
+                                equipos.map((item, index) =>
+                                    <Box1 key={index}>
+                                        <Label>{item}</Label>
+                                        <Button onClick={() => onHandleDelEquip(item)}>Quitar equipo</Button>
+                                    </Box1>
+                                )
+                            )}
+
+                        </ContainerInput>
+                        {equipos.length > 2 && <Button onClick={onHandleStart}>Comenzar</Button>}
+                    </ContainerCard2>
+                </> : <>
+                    <ContainerCard1>
+                        <Fechas dataFixture={dataFixture} />
+                    </ContainerCard1>
+                </>
+            }
         </Container>
     )
 }
